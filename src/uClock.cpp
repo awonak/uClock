@@ -126,6 +126,7 @@ uClockClass::uClockClass()
     resetCounters();
 
     onOutputPPQNCallback = nullptr;
+    #ifndef UCLOCK_NO_SYNC_CALLBACKS
     onSync1Callback = nullptr;
     onSync2Callback = nullptr;
     onSync4Callback = nullptr;
@@ -134,6 +135,7 @@ uClockClass::uClockClass()
     onSync24Callback = nullptr;
     onSync48Callback = nullptr;
     onStepCallback = nullptr;
+    #endif /* UCLOCK_NO_SYNC_CALLBACKS */
     onClockStartCallback = nullptr;
     onClockStopCallback = nullptr;
     // initialize reference data
@@ -158,6 +160,7 @@ uint32_t uClockClass::bpmToMicroSeconds(float bpm)
 void uClockClass::calculateReferencedata()
 {
     mod_clock_ref = output_ppqn / input_ppqn;
+    #ifndef UCLOCK_NO_SYNC_CALLBACKS
     mod_sync1_ref = output_ppqn / PPQN_1;
     mod_sync2_ref = output_ppqn / PPQN_2;
     mod_sync4_ref = output_ppqn / PPQN_4;
@@ -166,6 +169,7 @@ void uClockClass::calculateReferencedata()
     mod_sync24_ref = output_ppqn / PPQN_24;
     mod_sync48_ref = output_ppqn / PPQN_48;
     mod_step_ref = output_ppqn / 4;
+    #endif /* UCLOCK_NO_SYNC_CALLBACKS */
 }
 
 void uClockClass::setOutputPPQN(PPQNResolution resolution)
@@ -314,11 +318,12 @@ void uClockClass::resetCounters()
     tick = 0;
     int_clock_tick = 0;
     mod_clock_counter = 0;
-    mod_step_counter = 0;
-    step_counter = 0;
     ext_clock_tick = 0;
     ext_clock_us = 0;
     ext_interval_idx = 0;
+    #ifndef UCLOCK_NO_SYNC_CALLBACKS
+    mod_step_counter = 0;
+    step_counter = 0;
     // sync output counters
     mod_sync1_counter = 0;
     sync1_tick = 0;
@@ -334,6 +339,8 @@ void uClockClass::resetCounters()
     sync24_tick = 0;
     mod_sync48_counter = 0;
     sync48_tick = 0;
+    #endif /* UCLOCK_NO_SYNC_CALLBACKS */
+
 
     for (uint8_t i=0; i < ext_interval_buffer_size; i++) {
         ext_interval_buffer[i] = 0;
@@ -347,6 +354,7 @@ void uClockClass::tap()
     // we only set tap if ClockMode is INTERNAL_CLOCK
 }
 
+#if !defined(UCLOCK_NO_SHUFFLE)
 void uClockClass::setShuffle(bool active)
 {
     ATOMIC(shuffle.active = active)
@@ -431,6 +439,7 @@ bool inline uClockClass::processShuffle()
 
     return false;
 }
+#endif /* UCLOCK_NO_SHUFFLE */
 
 void uClockClass::handleExternalClock()
 {
@@ -481,7 +490,9 @@ void uClockClass::handleTimerInt()
                 int_clock_tick = ext_clock_tick;
                 tick = int_clock_tick * mod_clock_ref;
                 mod_clock_counter = tick % mod_clock_ref;
+                #ifndef UCLOCK_NO_SYNC_CALLBACKS
                 mod_step_counter = tick % mod_step_ref;
+                #endif /* UCLOCK_NO_SYNC_CALLBACKS */
             }
 
             uint32_t counter = ext_interval;
@@ -509,6 +520,7 @@ void uClockClass::handleTimerInt()
     }
     ++mod_clock_counter;
 
+    #ifndef UCLOCK_NO_SYNC_CALLBACKS
     // ALL OUTPUT SYNC CALLBACKS
     // Sync1 callback
     if (onSync1Callback) {
@@ -606,6 +618,7 @@ void uClockClass::handleTimerInt()
         }
         ++mod_step_counter;
     }
+    #endif /* UCLOCK_NO_SYNC_CALLBACKS */
 }
 
 // elapsed time support

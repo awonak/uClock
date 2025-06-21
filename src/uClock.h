@@ -34,6 +34,7 @@
 
 namespace umodular { namespace clock {
 
+#ifndef UCLOCK_NO_SHUFFLE
 // Shuffle templates are specific for each PPQN output resolution
 // min: -(output_ppqn/4)-1 ticks
 // max: (output_ppqn/4)-1 ticks
@@ -44,6 +45,7 @@ typedef struct {
     uint8_t size = MAX_SHUFFLE_TEMPLATE_SIZE;
     int8_t step[MAX_SHUFFLE_TEMPLATE_SIZE] = {0};
 } SHUFFLE_TEMPLATE;
+#endif /* UCLOCK_NO_SHUFFLE */
 
 #define MIN_BPM	1
 #define MAX_BPM	400
@@ -91,6 +93,7 @@ class uClockClass {
             onOutputPPQNCallback = callback;
         }
 
+        #ifndef UCLOCK_NO_SYNC_CALLBACKS
         void setOnStep(void (*callback)(uint32_t step)) {
             onStepCallback = callback;
         }
@@ -123,6 +126,8 @@ class uClockClass {
         void setOnSync48(void (*callback)(uint32_t tick)) {
             onSync48Callback = callback;
         }
+        #endif /* UCLOCK_NO_SYNC_CALLBACKS */
+
 
         void setOnClockStart(void (*callback)()) {
             onClockStartCallback = callback;
@@ -160,6 +165,7 @@ class uClockClass {
         // if you dont want to use it, it is default set it to 1 for memory save
         void setExtIntervalBuffer(uint8_t buffer_size);
 
+        #ifndef UCLOCK_NO_SHUFFLE
         // shuffle
         void setShuffle(bool active);
         bool isShuffled();
@@ -171,6 +177,7 @@ class uClockClass {
 
         // todo!
         void tap();
+        #endif /* UCLOCK_NO_SHUFFLE */
 
         // elapsed time support
         uint8_t getNumberOfSeconds(uint32_t time);
@@ -187,10 +194,9 @@ class uClockClass {
         float inline constrainBpm(float bpm);
         void calculateReferencedata();
 
-        // shuffle
-        bool inline processShuffle();
-
         void (*onOutputPPQNCallback)(uint32_t tick);
+
+        #ifndef UCLOCK_NO_SYNC_CALLBACKS
         void (*onStepCallback)(uint32_t step);
         void (*onSync1Callback)(uint32_t tick);
         void (*onSync2Callback)(uint32_t tick);
@@ -199,6 +205,8 @@ class uClockClass {
         void (*onSync12Callback)(uint32_t tick);
         void (*onSync24Callback)(uint32_t tick);
         void (*onSync48Callback)(uint32_t tick);
+        #endif /* UCLOCK_NO_SYNC_CALLBACKS */
+
         void (*onClockStartCallback)();
         void (*onClockStopCallback)();
 
@@ -210,6 +218,7 @@ class uClockClass {
         uint32_t int_clock_tick;
         uint8_t mod_clock_counter;
         uint16_t mod_clock_ref;
+        #ifndef UCLOCK_NO_SYNC_CALLBACKS
         uint8_t mod_step_counter;
         uint8_t mod_step_ref;
         uint32_t step_counter;
@@ -234,6 +243,7 @@ class uClockClass {
         uint8_t mod_sync48_counter;
         uint16_t mod_sync48_ref;
         uint32_t sync48_tick;
+        #endif /* UCLOCK_NO_SYNC_CALLBACKS */
 
         // external clock control
         volatile uint32_t ext_clock_us;
@@ -250,11 +260,16 @@ class uClockClass {
         uint8_t ext_interval_buffer_size;
         uint16_t ext_interval_idx;
 
+        #ifndef UCLOCK_NO_SHUFFLE
+        // shuffle
+        bool inline processShuffle();
+
         // shuffle implementation
         volatile SHUFFLE_TEMPLATE shuffle;
         int8_t last_shff = 0;
         bool shuffle_shoot_ctrl = true;
         volatile int8_t shuffle_length_ctrl = 0;
+        #endif /* UCLOCK_NO_SHUFFLE */
 };
 
 } } // end namespace umodular::clock
