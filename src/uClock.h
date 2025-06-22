@@ -29,6 +29,9 @@
 #ifndef __U_CLOCK_H__
 #define __U_CLOCK_H__
 
+#define UCLOCK_NO_SHUFFLE
+#define UCLOCK_NO_SYNC_CALLBACKS
+
 #include <Arduino.h>
 #include <inttypes.h>
 
@@ -175,10 +178,11 @@ class uClockClass {
         // use this to know how many positive or negative ticks to add to current note length
         int8_t getShuffleLength();
 
-        // todo!
-        void tap();
         #endif /* UCLOCK_NO_SHUFFLE */
 
+        // todo!
+        void tap();
+        
         // elapsed time support
         uint8_t getNumberOfSeconds(uint32_t time);
         uint8_t getNumberOfMinutes(uint32_t time);
