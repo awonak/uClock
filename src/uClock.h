@@ -222,10 +222,12 @@ class uClockClass {
         uint32_t int_clock_tick;
         uint8_t mod_clock_counter;
         uint16_t mod_clock_ref;
-        #ifndef UCLOCK_NO_SYNC_CALLBACKS
+
         uint8_t mod_step_counter;
         uint8_t mod_step_ref;
         uint32_t step_counter;
+
+        #ifndef UCLOCK_NO_SYNC_CALLBACKS
         uint8_t mod_sync1_counter;
         uint16_t mod_sync1_ref;
         uint32_t sync1_tick;

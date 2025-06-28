@@ -610,12 +610,14 @@ void uClockClass::handleTimerInt()
     if (onStepCallback) {
         if (mod_step_counter == mod_step_ref)
             mod_step_counter = 0;
+        #ifndef UCLOCK_NO_SHUFFLE
         // processShufle make use of mod_step_counter == 0 logic too
         if (processShuffle()) {
             onStepCallback(step_counter);
             // going forward to the next step call
             ++step_counter;
         }
+        #endif /* UCLOCK_NO_SHUFFLE */
         ++mod_step_counter;
     }
     #endif /* UCLOCK_NO_SYNC_CALLBACKS */
