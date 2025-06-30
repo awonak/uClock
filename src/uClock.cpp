@@ -255,8 +255,7 @@ void uClockClass::run()
 
 float inline uClockClass::freqToBpm(uint32_t freq)
 {
-    float usecs = 1/((float)freq/1000000.0);
-    return (float)((float)(usecs/(float)input_ppqn) * 60.0);
+    return 60000000.0f / (float)(freq * input_ppqn);
 }
 
 float inline uClockClass::constrainBpm(float bpm)
